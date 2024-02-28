@@ -1,6 +1,7 @@
 package com.distalreality.jetpack_tabs_preview
 
 import android.os.Parcelable
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,16 +16,20 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -46,16 +51,16 @@ data class Person(
 @Composable
 fun CardWithClickPosition(
     person: Person,
-    selectedPerson: (id: Int, xFraction: Float, yFraction: Float) -> Unit
+    viewModel: TabPreviewViewModel,
+    navController: NavController
 ) {
     var position by remember { mutableStateOf<Offset?>(null) }
-    val paddingValues = PaddingValues(horizontal = 5.dp, vertical = 10.dp)
+    val paddingValues = PaddingValues(horizontal = 5.dp, vertical = 5.dp)
     val screenSize = LocalContext.current.resources.displayMetrics
 
     Card(
         modifier = Modifier
             .padding(paddingValues = paddingValues)
-            .background(Color.Transparent)
             .onGloballyPositioned {
                 val card = it.boundsInParent()
                 position = Offset(card.center.x, card.center.y)
@@ -66,45 +71,56 @@ fun CardWithClickPosition(
                     val width = screenSize.widthPixels
                     val adjustedHeight = ((it.y * 100) / height) / 100
                     val adjustedWidth = ((it.x * 100) / width) / 100
-                    selectedPerson(person.id, adjustedWidth, adjustedHeight)
+                    viewModel.selectPerson(person, adjustedWidth, adjustedHeight)
+                    navController.navigate("${Screens.TabDetail.route}/${viewModel.selectedPerson.value?.first}") {
+                        popUpTo(Screens.TabPreview.route) {
+                            saveState = true
+                            inclusive = false
+                        }
+                        restoreState = true
+                    }
                 }
-            }
-    ) {
-        Column(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            Card(
-                modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = person.profile),
-                    contentDescription = "Profile",
-                    modifier = Modifier
-                        .size(100.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-
-                Text(
-                    text = person.name,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.W900,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Text(
-                    text = person.profession,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.W700,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-            }
+            },
+        colors = if (viewModel.selectedPerson.value?.first == person.id) {
+            CardDefaults.cardColors(Color.Magenta)
+        } else {
+            CardDefaults.cardColors(Color.LightGray)
         }
+    ) {
+        Spacer(modifier = Modifier.height(10.dp))
+        Image(
+            painter = painterResource(id = person.profile),
+            contentDescription = "Profile",
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(
+            text = person.profession,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.W900,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+
+        Text(
+            text = if (viewModel.selectedPerson.value?.first == person.id) {
+                person.name + "Selected"
+            } else {
+                person.name + "Not Selected"
+            },
+            fontSize = 14.sp,
+            fontWeight = FontWeight.W700,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
     }
 }
 
 @Composable
-fun TabsPreview(selectedPerson: (Int, Float, Float) -> Unit, navController: NavController) {
-    val data = getPersonList()
+fun TabsPreview(viewModel: TabPreviewViewModel, navController: NavController) {
+    val data = viewModel.getPersonList()
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -113,22 +129,9 @@ fun TabsPreview(selectedPerson: (Int, Float, Float) -> Unit, navController: NavC
         items(data) { person ->
             CardWithClickPosition(
                 person = person,
-                selectedPerson = selectedPerson
+                viewModel = viewModel,
+                navController
             )
         }
     }
 }
-
-fun getPersonList() = listOf(
-    Person(0,R.drawable.baseline_person_2_24, name = "Name1", profession = "SE1"),
-    Person(1,R.drawable.baseline_person_2_24, name = "Name2", profession = "SE2"),
-    Person(2,R.drawable.baseline_person_2_24, name = "Name3", profession = "SE3"),
-    Person(3,R.drawable.baseline_person_2_24, name = "Name4", profession = "SE4"),
-    Person(4,R.drawable.baseline_person_2_24, name = "Name5", profession = "SE5"),
-    Person(5,R.drawable.baseline_person_2_24, name = "Name6", profession = "SE6"),
-    Person(6,R.drawable.baseline_person_2_24, name = "Name7", profession = "SE7"),
-    Person(7,R.drawable.baseline_person_2_24, name = "Name8", profession = "SE8"),
-    Person(8,R.drawable.baseline_person_2_24, name = "Name9", profession = "SE9"),
-    Person(9,R.drawable.baseline_person_2_24, name = "Name10", profession = "SE10"),
-    Person(10,R.drawable.baseline_person_2_24, name = "Name11", profession = "SE11")
-)

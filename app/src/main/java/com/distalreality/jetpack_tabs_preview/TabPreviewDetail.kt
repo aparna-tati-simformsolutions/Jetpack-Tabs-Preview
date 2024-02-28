@@ -1,5 +1,6 @@
 package com.distalreality.jetpack_tabs_preview
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -21,11 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
-fun getPerson(id: Int): Person = getPersonList().find { it.id == id }!!
-
 @Composable
-fun TabPreviewDetail(navController: NavController, id: Int) {
-    val person = getPerson(id)
+fun TabPreviewDetail(viewModel: TabPreviewViewModel, navController: NavController, id: Int) {
+    val person = viewModel.getPerson(id)
 
     Column(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -35,7 +34,7 @@ fun TabPreviewDetail(navController: NavController, id: Int) {
                 .padding(10.dp)
                 .align(Alignment.CenterHorizontally)
                 .clickable {
-                    navController.popBackStack()
+                    navController.popBackStack(route = Screens.TabPreview.route, inclusive = false, saveState = true)
                 }
         )
 

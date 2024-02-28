@@ -2,6 +2,7 @@ package com.distalreality.jetpack_tabs_preview
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.ui.graphics.TransformOrigin
@@ -13,22 +14,13 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
 
 @SuppressLint("ComposableNavGraphInComposeScope")
-fun NavGraphBuilder.tabPreviewGraph(navController: NavController) {
-    var xValue = 0f
-    var yValue = 0f
-
-    val selectedPerson: (Int, Float, Float) -> Unit = { personId: Int, x: Float, y: Float ->
-        xValue = x
-        yValue = y
-        navController.navigate("${Screens.TabDetail.route}/$personId")
-    }
-
+fun NavGraphBuilder.tabPreviewGraph(navController: NavController, viewModel: TabPreviewViewModel) {
     navigation(
         startDestination = Screens.TabPreview.route,
         route = NavRoutes.TabPreviewRoute.name
     ) {
         composable(route = Screens.TabPreview.route) {
-            TabsPreview(selectedPerson = selectedPerson, navController)
+            TabsPreview(viewModel = viewModel, navController)
         }
 
         composable(
@@ -38,13 +30,22 @@ fun NavGraphBuilder.tabPreviewGraph(navController: NavController) {
                     type = NavType.IntType
                 }
             ), enterTransition = {
-                scaleIn(tween(1000), transformOrigin = TransformOrigin(xValue, yValue))
+                viewModel.selectedPerson.value?.let {
+                    TransformOrigin(
+                        it.second, it.third)
+                }?.let { scaleIn(tween(1000), transformOrigin = it) }
             }, exitTransition = {
-                scaleOut(tween(1000), transformOrigin = TransformOrigin(xValue, yValue))
+                viewModel.selectedPerson.value?.let {
+                    TransformOrigin(
+                        it.second, it.third)
+                }?.let {
+                    scaleOut(tween(1000), transformOrigin = it)
+                }
             }
         ) {
-            val arguments = requireNotNull(it.arguments)
-            TabPreviewDetail(navController = navController, id = arguments.getInt("id"))
+            viewModel.selectedPerson.value?.first?.let { it1 ->
+                TabPreviewDetail(viewModel = viewModel, navController = navController, id = it1)
+            }
         }
     }
 }
