@@ -1,6 +1,8 @@
 package com.distalreality.jetpack_tabs_preview
 
 import android.annotation.SuppressLint
+import android.util.Log
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -39,7 +41,11 @@ fun NavGraphBuilder.tabPreviewGraph(navController: NavController, viewModel: Tab
                     TransformOrigin(
                         it.second, it.third)
                 }?.let {
-                    scaleOut(tween(1000), transformOrigin = it)
+                    fadeOut(
+                        animationSpec = tween(
+                            350, easing = LinearEasing
+                        )
+                    ) + scaleOut(tween(1000), transformOrigin = it)
                 }
             }
         ) {

@@ -60,6 +60,7 @@ fun CardWithClickPosition(
 
     Card(
         modifier = Modifier
+            .alpha(if (viewModel.selectedPerson.value?.first == person.id) 0.0f else 1.0f)
             .padding(paddingValues = paddingValues)
             .onGloballyPositioned {
                 val card = it.boundsInParent()
