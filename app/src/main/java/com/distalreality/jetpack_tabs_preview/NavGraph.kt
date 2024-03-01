@@ -1,7 +1,6 @@
 package com.distalreality.jetpack_tabs_preview
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
