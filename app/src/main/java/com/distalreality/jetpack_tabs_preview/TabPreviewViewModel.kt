@@ -3,6 +3,10 @@ package com.distalreality.jetpack_tabs_preview
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class TabPreviewViewModel : ViewModel() {
     private val _selectedPerson = mutableStateOf<Triple<Int, Float, Float>?>(null)
@@ -13,7 +17,10 @@ class TabPreviewViewModel : ViewModel() {
     }
 
     fun clearSelectedPerson() {
-        _selectedPerson.value = null
+        CoroutineScope(Dispatchers.IO).launch {
+            delay(350)
+            _selectedPerson.value = null
+        }
     }
 
     fun getPerson(id: Int): Person = getPersonList().find { it.id == id }!!

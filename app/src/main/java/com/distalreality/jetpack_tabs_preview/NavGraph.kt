@@ -40,6 +40,7 @@ fun NavGraphBuilder.tabPreviewGraph(navController: NavController, viewModel: Tab
                     TransformOrigin(
                         it.second, it.third)
                 }?.let {
+                    viewModel.clearSelectedPerson()
                     fadeOut(
                         animationSpec = tween(
                             350, easing = LinearEasing
