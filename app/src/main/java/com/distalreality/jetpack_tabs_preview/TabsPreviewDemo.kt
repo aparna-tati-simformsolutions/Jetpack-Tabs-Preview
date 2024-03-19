@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -142,11 +141,7 @@ fun CardWithClickPosition(
 
 @Composable
 fun TabsPreview(navController: NavController, selectedPerson: MutableStateFlow<SelectedPerson?>) {
-    val data = remember {
-        mutableStateListOf<Person>().apply {
-            addAll(getPersonList())
-        }
-    }
+    val data = getPersonList()
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
