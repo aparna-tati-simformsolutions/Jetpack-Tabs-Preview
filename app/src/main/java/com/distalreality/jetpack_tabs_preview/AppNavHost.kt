@@ -26,6 +26,11 @@ import kotlinx.coroutines.flow.update
 @Composable
 fun AppNavHost(navController: NavHostController) {
     val selectedPerson = remember { MutableStateFlow<SelectedPerson?>(null) }
+
+    val isBackgroundIndicatorShown = remember {
+       MutableStateFlow<SelectedPerson?>(null)
+    }
+
     val isPersonSelected = rememberSaveable {
         mutableStateOf(false)
     }
@@ -42,7 +47,7 @@ fun AppNavHost(navController: NavHostController) {
 
     NavHost(navController = navController, startDestination = Screens.TabPreview.route) {
         composable(route = Screens.TabPreview.route) {
-            TabsPreview(navController, selectedPerson)
+            TabsPreview(navController, selectedPerson, isBackgroundIndicatorShown)
         }
 
         composable(

@@ -72,7 +72,8 @@ fun getPerson(id: Int): Person = getPersonList().find { it.id == id }!!
 fun CardWithClickPosition(
     person: Person,
     selectedPersonState: StateFlow<SelectedPerson?>,
-    navController: NavController
+    navController: NavController,
+    isBackgroundIndicatorShown: MutableStateFlow<SelectedPerson?>
 ) {
     var position by remember { mutableStateOf<Offset?>(null) }
     val screenSize = LocalContext.current.resources.displayMetrics
@@ -91,7 +92,10 @@ fun CardWithClickPosition(
                     val width = screenSize.widthPixels
                     val adjustedHeight = ((it.y * 100) / height) / 100
                     val adjustedWidth = ((it.x * 100) / width) / 100
-                    (selectedPersonState as MutableStateFlow<SelectedPerson?>).value = SelectedPerson(person, adjustedWidth, adjustedHeight)
+                    (selectedPersonState as MutableStateFlow<SelectedPerson?>).value =
+                        SelectedPerson(person, adjustedWidth, adjustedHeight)
+                    isBackgroundIndicatorShown.value =
+                        SelectedPerson(person, adjustedWidth, adjustedHeight)
                     navController.navigate("${Screens.TabDetail.route}/${person.id}") {
                         popUpTo(Screens.TabPreview.route) {
                             saveState = true
@@ -101,12 +105,12 @@ fun CardWithClickPosition(
                     }
                 }
             },
-        colors = if (selectedPersonState.collectAsState().value?.person?.id == person.id) {
+        colors = if (isBackgroundIndicatorShown.collectAsState().value?.person?.id == person.id) {
             CardDefaults.cardColors(Color.LightGray)
         } else {
             CardDefaults.cardColors(Color.White)
         },
-        border = BorderStroke(1.dp, color = if (selectedPersonState.collectAsState().value?.person?.id == person.id) Color.White else Color.Black)
+        border = BorderStroke(1.dp, color = if (isBackgroundIndicatorShown.collectAsState().value?.person?.id == person.id) Color.White else Color.Black)
     ) {
         Spacer(modifier = Modifier.height(10.dp))
         Image(
@@ -127,7 +131,7 @@ fun CardWithClickPosition(
         )
 
         Text(
-            text = if (selectedPersonState.collectAsState().value?.person?.id == person.id) {
+            text = if (isBackgroundIndicatorShown.collectAsState().value?.person?.id == person.id) {
                 person.name + " " + "Selected"
             } else {
                 person.name + " " + "Not Selected"
@@ -140,7 +144,7 @@ fun CardWithClickPosition(
 }
 
 @Composable
-fun TabsPreview(navController: NavController, selectedPerson: MutableStateFlow<SelectedPerson?>) {
+fun TabsPreview(navController: NavController, selectedPerson: MutableStateFlow<SelectedPerson?>, isBackgroundIndicatorShown: MutableStateFlow<SelectedPerson?>) {
     val data = getPersonList()
 
     LazyVerticalGrid(
@@ -151,7 +155,8 @@ fun TabsPreview(navController: NavController, selectedPerson: MutableStateFlow<S
             CardWithClickPosition(
                 person = person,
                 selectedPerson,
-                navController
+                navController,
+                isBackgroundIndicatorShown
             )
         }
     }
