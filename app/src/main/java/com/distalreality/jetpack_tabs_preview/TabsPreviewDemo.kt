@@ -1,6 +1,7 @@
 package com.distalreality.jetpack_tabs_preview
 
 import android.os.Parcelable
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,6 +29,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -77,11 +79,12 @@ fun CardWithClickPosition(
                     }
                 }
             },
-        colors = if (viewModel.selectedPerson.value?.first == person.id) {
-            CardDefaults.cardColors(Color.Magenta)
-        } else {
+        colors = if (viewModel.lastElement.value?.id == person.id) {
             CardDefaults.cardColors(Color.LightGray)
-        }
+        } else {
+            CardDefaults.cardColors(Color.White)
+        },
+        border = BorderStroke(1.dp, if (viewModel.lastElement.value?.id == person.id) Color.White else Color.Black)
     ) {
         Spacer(modifier = Modifier.height(10.dp))
         Image(

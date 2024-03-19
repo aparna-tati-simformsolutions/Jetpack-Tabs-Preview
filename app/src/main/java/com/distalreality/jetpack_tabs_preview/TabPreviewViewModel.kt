@@ -12,7 +12,11 @@ class TabPreviewViewModel : ViewModel() {
     private val _selectedPerson = mutableStateOf<Triple<Int, Float, Float>?>(null)
     val selectedPerson: State<Triple<Int, Float, Float>?> = _selectedPerson
 
+    private val _lastElement =  mutableStateOf<Person?>(null)
+    val lastElement: State<Person?> = _lastElement
+
     fun selectPerson(person: Person, adjustedWidth: Float, adjustedHeight: Float) {
+        _lastElement.value = person
         _selectedPerson.value = Triple(person.id, adjustedWidth, adjustedHeight)
     }
 
