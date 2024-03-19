@@ -12,13 +12,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,25 +54,29 @@ fun CardWithClickPosition(
     navController: NavController
 ) {
     var position by remember { mutableStateOf<Offset?>(null) }
-    val paddingValues = PaddingValues(horizontal = 5.dp, vertical = 5.dp)
     val screenSize = LocalContext.current.resources.displayMetrics
+
+    var isPersonSelected by rememberSaveable {
+        mutableStateOf(false)
+    }
 
     Card(
         modifier = Modifier
             .alpha(if (viewModel.selectedPerson.value?.first == person.id) 0.0f else 1.0f)
-            .padding(paddingValues = paddingValues)
+            .padding(paddingValues = PaddingValues(horizontal = 5.dp, vertical = 5.dp))
             .onGloballyPositioned {
                 val card = it.boundsInParent()
                 position = Offset(card.center.x, card.center.y)
             }
             .clickable {
+                isPersonSelected = true
                 position?.let {
                     val height = screenSize.heightPixels
                     val width = screenSize.widthPixels
                     val adjustedHeight = ((it.y * 100) / height) / 100
                     val adjustedWidth = ((it.x * 100) / width) / 100
                     viewModel.selectPerson(person, adjustedWidth, adjustedHeight)
-                    navController.navigate("${Screens.TabDetail.route}/${viewModel.selectedPerson.value?.first}") {
+                    navController.navigate("${Screens.TabDetail.route}/${person.id}") {
                         popUpTo(Screens.TabPreview.route) {
                             saveState = true
                             inclusive = false
@@ -83,7 +90,7 @@ fun CardWithClickPosition(
         } else {
             CardDefaults.cardColors(Color.White)
         },
-        border = BorderStroke(1.dp, if (viewModel.lastElement.value?.id == person.id) Color.White else Color.Black)
+        border = BorderStroke(1.dp, color = if (viewModel.lastElement.value?.id == person.id) Color.White else Color.Black)
     ) {
         Spacer(modifier = Modifier.height(10.dp))
         Image(
@@ -104,10 +111,10 @@ fun CardWithClickPosition(
         )
 
         Text(
-            text = if (viewModel.selectedPerson.value?.first == person.id) {
-                person.name + "Selected"
+            text = if (viewModel.lastElement.value?.id == person.id) {
+                person.name + " " + "Selected"
             } else {
-                person.name + "Not Selected"
+                person.name + " " + "Not Selected"
             },
             fontSize = 14.sp,
             fontWeight = FontWeight.W700,
@@ -118,13 +125,18 @@ fun CardWithClickPosition(
 
 @Composable
 fun TabsPreview(viewModel: TabPreviewViewModel, navController: NavController) {
-    val data = mutableListOf<Person>().apply {
-        addAll(getPersonList())
+    val data = remember {
+        mutableStateListOf<Person>().apply {
+            addAll(getPersonList())
+        }
     }
+
+    val gridState = rememberLazyGridState()
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        state = gridState
     ) {
         items(data) { person ->
             CardWithClickPosition(
