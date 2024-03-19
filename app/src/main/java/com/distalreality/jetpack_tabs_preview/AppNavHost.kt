@@ -7,19 +7,42 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 
 @SuppressLint("ComposableNavGraphInComposeScope")
 @Composable
-fun AppNavHost(navController: NavHostController, viewModel: TabPreviewViewModel) {
+fun AppNavHost(navController: NavHostController) {
+    val selectedPerson = remember { MutableStateFlow<SelectedPerson?>(null) }
+    val isPersonSelected = rememberSaveable {
+        mutableStateOf(false)
+    }
+
+   LaunchedEffect(key1 = isPersonSelected.value) {
+       if (isPersonSelected.value) {
+           delay(350)
+           selectedPerson.update {
+               isPersonSelected.value = false
+               null
+           }
+       }
+   }
+
     NavHost(navController = navController, startDestination = Screens.TabPreview.route) {
         composable(route = Screens.TabPreview.route) {
-            TabsPreview(viewModel = viewModel, navController)
+            TabsPreview(navController, selectedPerson)
         }
 
         composable(
@@ -29,16 +52,14 @@ fun AppNavHost(navController: NavHostController, viewModel: TabPreviewViewModel)
                     type = NavType.IntType
                 }
             ), enterTransition = {
-                viewModel.selectedPerson.value?.let {
-                    TransformOrigin(
-                        it.second, it.third)
+                selectedPerson.value?.let {
+                    TransformOrigin(it.adjustedWidth, it.adjustedHeight)
                 }?.let { scaleIn(tween(1000), transformOrigin = it) }
             }, exitTransition = {
-                viewModel.selectedPerson.value?.let {
-                    TransformOrigin(
-                        it.second, it.third)
+                selectedPerson.value?.let {
+                    TransformOrigin(it.adjustedWidth, it.adjustedHeight)
                 }?.let {
-                    viewModel.clearSelectedPerson()
+                    isPersonSelected.value = true
                     fadeOut(
                         animationSpec = tween(
                             350, easing = LinearEasing
@@ -47,8 +68,8 @@ fun AppNavHost(navController: NavHostController, viewModel: TabPreviewViewModel)
                 }
             }
         ) {
-            viewModel.selectedPerson.value?.first?.let { it1 ->
-                TabPreviewDetail(viewModel = viewModel, navController = navController, id = it1)
+            selectedPerson.collectAsState().value?.let {
+                TabPreviewDetail(navController = navController, id = it.person.id)
             }
         }
     }

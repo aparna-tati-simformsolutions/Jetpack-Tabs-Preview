@@ -12,16 +12,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,45 +36,63 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Person(
-    val id: Int,
+    var id: Int,
     val profile: Int,
     val name: String,
     val profession: String
 ) : Parcelable
 
+data class SelectedPerson(val person: Person, val adjustedWidth: Float, val adjustedHeight: Float)
+
+fun getPersonList() = listOf(
+    Person(0,R.drawable.avatar_1, name = "Name1", profession = "SE1"),
+    Person(1,R.drawable.avatar_2, name = "Name2", profession = "SE2"),
+    Person(2,R.drawable.avatar_3, name = "Name3", profession = "SE3"),
+    Person(3,R.drawable.avatar_4, name = "Name4", profession = "SE4"),
+    Person(4,R.drawable.avatar_5, name = "Name5", profession = "SE5"),
+    Person(5,R.drawable.avatar_6, name = "Name6", profession = "SE6"),
+    Person(6,R.drawable.avatar_7, name = "Name7", profession = "SE7"),
+    Person(7,R.drawable.avatar_8, name = "Name8", profession = "SE8"),
+    Person(8,R.drawable.avatar_9, name = "Name9", profession = "SE9"),
+    Person(9,R.drawable.avatar_10, name = "Name10", profession = "SE10"),
+    Person(10,R.drawable.avatar_11, name = "Name11", profession = "SE11"),
+    Person(11,R.drawable.avatar_12, name = "Name12", profession = "SE12"),
+    Person(12,R.drawable.avatar_13, name = "Name13", profession = "SE13"),
+    Person(13,R.drawable.avatar_14, name = "Name14", profession = "SE14")
+)
+
+fun getPerson(id: Int): Person = getPersonList().find { it.id == id }!!
+
 @Composable
 fun CardWithClickPosition(
     person: Person,
-    viewModel: TabPreviewViewModel,
+    selectedPersonState: StateFlow<SelectedPerson?>,
     navController: NavController
 ) {
     var position by remember { mutableStateOf<Offset?>(null) }
     val screenSize = LocalContext.current.resources.displayMetrics
 
-    var isPersonSelected by rememberSaveable {
-        mutableStateOf(false)
-    }
-
     Card(
         modifier = Modifier
-            .alpha(if (viewModel.selectedPerson.value?.first == person.id) 0.0f else 1.0f)
+            .alpha(if (selectedPersonState.collectAsState().value?.person?.id == person.id) 0.0f else 1.0f)
             .padding(paddingValues = PaddingValues(horizontal = 5.dp, vertical = 5.dp))
             .onGloballyPositioned {
                 val card = it.boundsInParent()
                 position = Offset(card.center.x, card.center.y)
             }
             .clickable {
-                isPersonSelected = true
                 position?.let {
                     val height = screenSize.heightPixels
                     val width = screenSize.widthPixels
                     val adjustedHeight = ((it.y * 100) / height) / 100
                     val adjustedWidth = ((it.x * 100) / width) / 100
-                    viewModel.selectPerson(person, adjustedWidth, adjustedHeight)
+                    (selectedPersonState as MutableStateFlow<SelectedPerson?>).value = SelectedPerson(person, adjustedWidth, adjustedHeight)
                     navController.navigate("${Screens.TabDetail.route}/${person.id}") {
                         popUpTo(Screens.TabPreview.route) {
                             saveState = true
@@ -85,12 +102,12 @@ fun CardWithClickPosition(
                     }
                 }
             },
-        colors = if (viewModel.lastElement.value?.id == person.id) {
+        colors = if (selectedPersonState.collectAsState().value?.person?.id == person.id) {
             CardDefaults.cardColors(Color.LightGray)
         } else {
             CardDefaults.cardColors(Color.White)
         },
-        border = BorderStroke(1.dp, color = if (viewModel.lastElement.value?.id == person.id) Color.White else Color.Black)
+        border = BorderStroke(1.dp, color = if (selectedPersonState.collectAsState().value?.person?.id == person.id) Color.White else Color.Black)
     ) {
         Spacer(modifier = Modifier.height(10.dp))
         Image(
@@ -111,7 +128,7 @@ fun CardWithClickPosition(
         )
 
         Text(
-            text = if (viewModel.lastElement.value?.id == person.id) {
+            text = if (selectedPersonState.collectAsState().value?.person?.id == person.id) {
                 person.name + " " + "Selected"
             } else {
                 person.name + " " + "Not Selected"
@@ -124,24 +141,21 @@ fun CardWithClickPosition(
 }
 
 @Composable
-fun TabsPreview(viewModel: TabPreviewViewModel, navController: NavController) {
+fun TabsPreview(navController: NavController, selectedPerson: MutableStateFlow<SelectedPerson?>) {
     val data = remember {
         mutableStateListOf<Person>().apply {
             addAll(getPersonList())
         }
     }
 
-    val gridState = rememberLazyGridState()
-
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-        modifier = Modifier.fillMaxSize(),
-        state = gridState
+        modifier = Modifier.fillMaxSize()
     ) {
         items(data) { person ->
             CardWithClickPosition(
                 person = person,
-                viewModel = viewModel,
+                selectedPerson,
                 navController
             )
         }

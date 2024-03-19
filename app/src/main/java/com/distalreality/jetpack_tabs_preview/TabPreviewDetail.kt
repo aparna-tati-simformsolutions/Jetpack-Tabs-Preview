@@ -22,8 +22,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
-fun TabPreviewDetail(viewModel: TabPreviewViewModel, navController: NavController, id: Int) {
-    val person = viewModel.getPerson(id)
+fun TabPreviewDetail(navController: NavController, id: Int) {
+    val person = getPerson(id)
 
     Column(modifier = Modifier.fillMaxSize()) {
         Image(
