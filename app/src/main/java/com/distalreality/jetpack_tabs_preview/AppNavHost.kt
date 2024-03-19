@@ -54,7 +54,7 @@ fun AppNavHost(navController: NavHostController) {
             ), enterTransition = {
                 selectedPerson.value?.let {
                     TransformOrigin(it.adjustedWidth, it.adjustedHeight)
-                }?.let { scaleIn(tween(1000), transformOrigin = it) }
+                }?.let { scaleIn(tween(100), transformOrigin = it) }
             }, exitTransition = {
                 selectedPerson.value?.let {
                     TransformOrigin(it.adjustedWidth, it.adjustedHeight)
