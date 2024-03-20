@@ -37,7 +37,7 @@ fun AppNavHost(navController: NavHostController) {
 
    LaunchedEffect(key1 = isPersonSelected.value) {
        if (isPersonSelected.value) {
-           delay(350)
+           delay(150)
            selectedPerson.update {
                isPersonSelected.value = false
                null
@@ -67,9 +67,9 @@ fun AppNavHost(navController: NavHostController) {
                     isPersonSelected.value = true
                     fadeOut(
                         animationSpec = tween(
-                            350, easing = LinearEasing
+                            150, easing = LinearEasing
                         )
-                    ) + scaleOut(tween(1000), transformOrigin = it)
+                    ) + scaleOut(tween(800), transformOrigin = it)
                 }
             }
         ) {
