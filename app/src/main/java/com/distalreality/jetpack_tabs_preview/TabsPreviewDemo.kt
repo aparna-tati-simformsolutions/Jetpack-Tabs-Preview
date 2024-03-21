@@ -88,10 +88,8 @@ fun CardWithClickPosition(
             }
             .clickable {
                 position?.let {
-                    val height = screenSize.heightPixels
-                    val width = screenSize.widthPixels
-                    val adjustedHeight = ((it.y * 100) / height) / 100
-                    val adjustedWidth = ((it.x * 100) / width) / 100
+                    val adjustedHeight = ((it.y * 100) / screenSize.heightPixels) / 100
+                    val adjustedWidth = ((it.x * 100) / screenSize.widthPixels) / 100
                     (selectedPersonState as MutableStateFlow<SelectedPerson?>).value =
                         SelectedPerson(person, adjustedWidth, adjustedHeight)
                     isBackgroundIndicatorShown.value =

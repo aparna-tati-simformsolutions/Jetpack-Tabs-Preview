@@ -45,7 +45,6 @@ fun TabPreviewDetail(navController: NavController, id: Int) {
             modifier = Modifier
                 .padding(10.dp)
                 .size(200.dp)
-                .shadow(10.dp)
                 .align(Alignment.CenterHorizontally)
         )
 
