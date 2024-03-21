@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -33,7 +32,11 @@ fun TabPreviewDetail(navController: NavController, id: Int) {
                 .padding(10.dp)
                 .align(Alignment.CenterHorizontally)
                 .clickable {
-                    navController.popBackStack(route = Screens.TabPreview.route, inclusive = false, saveState = true)
+                    navController.navigate(Screens.TabPreview.route) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                    }
                 }
         )
 

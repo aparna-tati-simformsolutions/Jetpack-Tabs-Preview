@@ -95,11 +95,9 @@ fun CardWithClickPosition(
                     isBackgroundIndicatorShown.value =
                         SelectedPerson(person, adjustedWidth, adjustedHeight)
                     navController.navigate("${Screens.TabDetail.route}/${person.id}") {
-                        popUpTo(Screens.TabPreview.route) {
-                            saveState = true
-                            inclusive = false
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
                         }
-                        restoreState = true
                     }
                 }
             },
