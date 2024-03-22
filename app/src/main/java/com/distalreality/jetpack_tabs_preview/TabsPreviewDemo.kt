@@ -79,7 +79,7 @@ fun CardWithClickPosition(
 ) {
     var position by remember { mutableStateOf<Offset?>(null) }
     val screenSize = LocalContext.current.resources.displayMetrics
-    var isPersonSelected = person.id == selectedPersonState.value?.person?.id
+    val isPersonSelected = person.id == selectedPersonState.value?.person?.id
 
     Card(
         modifier = Modifier
