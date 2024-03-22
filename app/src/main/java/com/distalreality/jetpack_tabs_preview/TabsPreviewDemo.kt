@@ -1,5 +1,6 @@
 package com.distalreality.jetpack_tabs_preview
 
+import android.annotation.SuppressLint
 import android.os.Parcelable
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -68,6 +69,7 @@ fun getPersonList() = listOf(
 
 fun getPerson(id: Int): Person = getPersonList().find { it.id == id }!!
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun CardWithClickPosition(
     person: Person,
@@ -77,6 +79,7 @@ fun CardWithClickPosition(
 ) {
     var position by remember { mutableStateOf<Offset?>(null) }
     val screenSize = LocalContext.current.resources.displayMetrics
+    var isPersonSelected = person.id == selectedPersonState.value?.person?.id
 
     Card(
         modifier = Modifier
@@ -86,7 +89,7 @@ fun CardWithClickPosition(
                 val card = it.boundsInParent()
                 position = Offset(card.center.x, card.center.y)
             }
-            .clickable {
+            .clickable(enabled = !isPersonSelected) {
                 position?.let {
                     val xCoordinate = ((it.x * 100) / screenSize.widthPixels) / 100
                     val yCoordinate = ((it.y * 100) / screenSize.heightPixels) / 100
