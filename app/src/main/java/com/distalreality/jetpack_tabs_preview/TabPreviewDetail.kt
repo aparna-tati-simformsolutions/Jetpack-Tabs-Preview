@@ -32,11 +32,7 @@ fun TabPreviewDetail(navController: NavController, id: Int) {
                 .padding(10.dp)
                 .align(Alignment.CenterHorizontally)
                 .clickable {
-                    navController.navigate(Screens.TabPreview.route) {
-                        popUpTo(navController.graph.id) {
-                            inclusive = true
-                        }
-                    }
+                    navController.popBackStack(route = Screens.TabPreview.route, inclusive = false, saveState = true)
                 }
         )
 
