@@ -58,11 +58,11 @@ fun AppNavHost(navController: NavHostController) {
                 }
             ), enterTransition = {
                 selectedPerson.value?.let {
-                    TransformOrigin(it.adjustedWidth, it.adjustedHeight)
+                    TransformOrigin(it.xCoordinate, it.yCoordinate)
                 }?.let { scaleIn(tween(100), transformOrigin = it) }
             }, exitTransition = {
                 selectedPerson.value?.let {
-                    TransformOrigin(it.adjustedWidth, it.adjustedHeight)
+                    TransformOrigin(it.xCoordinate, it.yCoordinate)
                 }?.let {
                     isPersonSelected.value = true
                     fadeOut(

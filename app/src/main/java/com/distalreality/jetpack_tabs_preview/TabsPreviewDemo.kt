@@ -47,7 +47,7 @@ data class Person(
     val profession: String
 ) : Parcelable
 
-data class SelectedPerson(val person: Person, val adjustedWidth: Float, val adjustedHeight: Float)
+data class SelectedPerson(val person: Person, val xCoordinate: Float, val yCoordinate: Float)
 
 fun getPersonList() = listOf(
     Person(0,R.drawable.avatar_1, name = "Name1", profession = "SE1"),
@@ -88,12 +88,12 @@ fun CardWithClickPosition(
             }
             .clickable {
                 position?.let {
-                    val adjustedHeight = ((it.y * 100) / screenSize.heightPixels) / 100
-                    val adjustedWidth = ((it.x * 100) / screenSize.widthPixels) / 100
+                    val xCoordinate = ((it.x * 100) / screenSize.widthPixels) / 100
+                    val yCoordinate = ((it.y * 100) / screenSize.heightPixels) / 100
                     (selectedPersonState as MutableStateFlow<SelectedPerson?>).value =
-                        SelectedPerson(person, adjustedWidth, adjustedHeight)
+                        SelectedPerson(person, xCoordinate, yCoordinate)
                     isBackgroundIndicatorShown.value =
-                        SelectedPerson(person, adjustedWidth, adjustedHeight)
+                        SelectedPerson(person, xCoordinate, yCoordinate)
                     navController.navigate("${Screens.TabDetail.route}/${person.id}") {
                         popUpTo(Screens.TabPreview.route) {
                             saveState = true
