@@ -17,7 +17,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -62,7 +61,7 @@ fun getPersonList() = listOf(
     Person(8,R.drawable.avatar_9, name = "Name9", profession = "SE9"),
     Person(9,R.drawable.avatar_10, name = "Name10", profession = "SE10"),
     Person(10,R.drawable.avatar_11, name = "Name11", profession = "SE11"),
-    Person(11,R.drawable.avatar_12, name = "Name12", profession = "SE12"),
+    Person  (11,R.drawable.avatar_12, name = "Name12", profession = "SE12"),
     Person(12,R.drawable.avatar_13, name = "Name13", profession = "SE13"),
     Person(13,R.drawable.avatar_14, name = "Name14", profession = "SE14")
 )
@@ -73,7 +72,7 @@ fun getPerson(id: Int): Person = getPersonList().find { it.id == id }!!
 @Composable
 fun CardWithClickPosition(
     person: Person,
-    selectedPersonState: StateFlow<SelectedPerson?>,
+    selectedPersonState: MutableState<SelectedPerson?>,
     navController: NavController,
     isBackgroundIndicatorShown: MutableStateFlow<SelectedPerson?>
 ) {
@@ -83,7 +82,7 @@ fun CardWithClickPosition(
 
     Card(
         modifier = Modifier
-            .alpha(if (selectedPersonState.collectAsState().value?.person?.id == person.id) 0.0f else 1.0f)
+            .alpha(if (isPersonSelected) 0.0f else 1.0f)
             .padding(paddingValues = PaddingValues(horizontal = 5.dp, vertical = 5.dp))
             .onGloballyPositioned {
                 val card = it.boundsInParent()
@@ -93,7 +92,7 @@ fun CardWithClickPosition(
                 position?.let {
                     val xCoordinate = ((it.x * 100) / screenSize.widthPixels) / 100
                     val yCoordinate = ((it.y * 100) / screenSize.heightPixels) / 100
-                    (selectedPersonState as MutableStateFlow<SelectedPerson?>).value =
+                    selectedPersonState.value =
                         SelectedPerson(person, xCoordinate, yCoordinate)
                     isBackgroundIndicatorShown.value =
                         SelectedPerson(person, xCoordinate, yCoordinate)
@@ -104,12 +103,12 @@ fun CardWithClickPosition(
                     }
                 }
             },
-        colors = if (isBackgroundIndicatorShown.collectAsState().value?.person?.id == person.id) {
+        colors = if (isPersonSelected) {
             CardDefaults.cardColors(Color.LightGray)
         } else {
             CardDefaults.cardColors(Color.White)
         },
-        border = BorderStroke(1.dp, color = if (isBackgroundIndicatorShown.collectAsState().value?.person?.id == person.id) Color.White else Color.Black)
+        border = BorderStroke(1.dp, color = if (isPersonSelected) Color.White else Color.Black)
     ) {
         Spacer(modifier = Modifier.height(10.dp))
         Image(
@@ -130,7 +129,7 @@ fun CardWithClickPosition(
         )
 
         Text(
-            text = if (isBackgroundIndicatorShown.collectAsState().value?.person?.id == person.id) {
+            text = if (isPersonSelected) {
                 person.name + " " + "Selected"
             } else {
                 person.name + " " + "Not Selected"
@@ -143,7 +142,7 @@ fun CardWithClickPosition(
 }
 
 @Composable
-fun TabsPreview(navController: NavController, selectedPerson: MutableStateFlow<SelectedPerson?>, isBackgroundIndicatorShown: MutableStateFlow<SelectedPerson?>) {
+fun TabsPreview(navController: NavController, selectedPerson: MutableState<SelectedPerson?>, isBackgroundIndicatorShown: MutableStateFlow<SelectedPerson?>) {
     val data = getPersonList()
 
     LazyVerticalGrid(

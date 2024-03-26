@@ -8,7 +8,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -20,12 +19,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 
 @SuppressLint("ComposableNavGraphInComposeScope")
 @Composable
 fun AppNavHost(navController: NavHostController) {
-    val selectedPerson = remember { MutableStateFlow<SelectedPerson?>(null) }
+    val selectedPerson = remember { mutableStateOf<SelectedPerson?>(null) }
 
     val isBackgroundIndicatorShown = remember {
        MutableStateFlow<SelectedPerson?>(null)
@@ -38,10 +36,8 @@ fun AppNavHost(navController: NavHostController) {
    LaunchedEffect(key1 = isPersonSelected.value) {
        if (isPersonSelected.value) {
            delay(150)
-           selectedPerson.update {
-               isPersonSelected.value = false
-               null
-           }
+           selectedPerson.value = null
+           isPersonSelected.value = false
        }
    }
 
@@ -73,7 +69,7 @@ fun AppNavHost(navController: NavHostController) {
                 }
             }
         ) {
-            selectedPerson.collectAsState().value?.let {
+            selectedPerson.value?.let {
                 TabPreviewDetail(navController = navController, id = it.person.id)
             }
         }
